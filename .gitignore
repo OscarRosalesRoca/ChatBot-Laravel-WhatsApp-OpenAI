@@ -22,3 +22,32 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Node artifact files
+dist/
+
+# Compiled Java class files
+*.class
+
+# Compiled Python bytecode
+*.py[cod]
+
+# Package files
+*.jar
+
+# Unit test reports
+TEST*.xml
+
+# Applications
+*.app
+*.exe
+*.war
+
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+
