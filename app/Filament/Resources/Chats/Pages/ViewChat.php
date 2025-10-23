@@ -41,21 +41,22 @@ class ViewChat extends ViewRecord
         ];
     }
 
-    public function sendMessage()
-    {
-        if (empty($this->newMessage)) {
-            $this->notify('danger', 'Message cannot be empty.');
-            return;
-        }
+	public function sendMessage()
+{
+    // Crear el mensaje
+    $this->record->messages()->create([
+        'sender' => 'admin',
+        'message' => $this->newMessage,
+    ]);
 
-        $this->record->messages()->create([
-            'sender' => 'admin',
-            'message' => $this->newMessage,
-        ]);
+    $this->newMessage = '';
 
-        $this->newMessage = '';
-        $this->notify('success', 'Message sent.');
-    }
+    // Mostrar notificación en Filament
+    Notification::make()
+        ->title('Message sent.')
+        ->success()
+        ->send();
+}
 
 	public function render(): \Illuminate\Contracts\View\View
 	{
