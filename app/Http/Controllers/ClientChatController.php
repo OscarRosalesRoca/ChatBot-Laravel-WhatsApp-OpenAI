@@ -10,28 +10,28 @@ class ClientChatController extends Controller
 {
     public function index(Request $request)
     {
-        // Guardar o recuperar la sesión del cliente
+        // Recuperar sesión y nombre
         $sessionId = $request->session()->get('chat_session_id');
+        $name = $request->session()->get('chat_name', 'guest');
+
         if (!$sessionId) {
             $chat = Chat::create([
                 'session_id' => uniqid('chat_', true),
-                'name' => 'guest',
+                'name' => $name,
             ]);
             $request->session()->put('chat_session_id', $chat->session_id);
+            $request->session()->put('chat_name', $chat->name);
         } else {
             $chat = Chat::where('session_id', $sessionId)->first();
             if (!$chat) {
                 $chat = Chat::create([
                     'session_id' => $sessionId,
-                    'name' => 'guest',
+                    'name' => $name,
                 ]);
             }
         }
 
-        return view('client.chat', [
-            'chat' => $chat,
-            'messages' => $chat->messages()->latest()->get(),
-        ]);
+        return view('client.chat', ['chat' => $chat]);
     }
 
     public function send(Request $request)
@@ -47,16 +47,28 @@ class ClientChatController extends Controller
         }
 
         $message = $chat->messages()->create([
-            'sender' => 'client',
+            'sender' => $request->session()->get('chat_name', 'guest'),
             'message' => $request->message,
         ]);
 
-        // Devolver JSON para actualizar la vista sin recargar
         return response()->json([
             'id' => $message->id,
             'sender' => $message->sender,
             'message' => $message->message,
             'created_at' => $message->created_at->format('H:i'),
         ]);
+    }
+
+    public function setName(Request $request)
+    {
+        $request->validate(['name' => 'required|string|max:50']);
+        $request->session()->put('chat_name', $request->name);
+
+        $chat = Chat::where('session_id', $request->session()->get('chat_session_id'))->first();
+        if ($chat) {
+            $chat->update(['name' => $request->name]);
+        }
+
+        return response()->json(['status' => 'ok']);
     }
 }

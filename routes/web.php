@@ -1,13 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ChatController;
-use App\Http\Controllers\ClientChatController;
+use App\Livewire\ClientChat;
+use App\Livewire\AdminChat;
 
-Route::post('/chat/name', [ClientChatController::class, 'setName'])->name('client.chat.name');
-Route::get('/chat', [ClientChatController::class, 'index'])->name('client.chat');
-Route::post('/chat/send', [ClientChatController::class, 'send'])->name('client.chat.send');
+Route::get('/chat', \App\Livewire\ClientChat::class)->name('client.chat');
+
+Route::get('/admin/chat/{chat}', \App\Livewire\AdminChat::class)->name('admin.chat');
 
 Route::get('/', function () {
-    return "¡Hola, Laravel funciona!";
+    return 'Servidor Laravel + Livewire funcionando correctamente';
 });

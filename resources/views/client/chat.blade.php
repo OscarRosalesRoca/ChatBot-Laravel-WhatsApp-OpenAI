@@ -3,53 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Cliente</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Client Chat</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .chat-box { border: 1px solid #ccc; padding: 10px; max-height: 400px; overflow-y: auto; margin-bottom: 10px; }
+        .message { margin-bottom: 5px; }
+        .admin { text-align: right; color: white; background-color: blue; padding: 5px; border-radius: 5px; display: inline-block; }
+        .client { text-align: left; background-color: #eee; padding: 5px; border-radius: 5px; display: inline-block; }
+    </style>
 </head>
 <body>
-    <h1>Chat con Admin</h1>
 
-    <div id="messages" style="border:1px solid #ccc; padding:10px; max-height:300px; overflow-y:auto;">
-        @foreach ($messages as $message)
-            <div><strong>{{ $message->sender }}:</strong> {{ $message->message }} <small>({{ $message->created_at->format('H:i') }})</small></div>
-        @endforeach
-    </div>
+<h2>Chat</h2>
 
-    <form id="chat-form">
-        <input type="text" id="message" placeholder="Escribe tu mensaje..." required>
-        <button type="submit">Enviar</button>
-    </form>
+<!-- Set Name -->
+@if(session('chat_name') === 'guest')
+<form id="set-name-form" class="mb-4">
+    <input type="text" id="client-name" placeholder="Your name" required>
+    <button type="button" onclick="setName()">Set Name</button>
+</form>
+@endif
 
-    <script>
-        const form = document.getElementById('chat-form');
-        const messagesDiv = document.getElementById('messages');
+<!-- Chat Messages -->
+<div class="chat-box" id="chat-box">
+    @foreach($messages->reverse() as $msg)
+        <div class="message {{ $msg->sender === 'admin' ? 'admin' : 'client' }}">
+            <strong>{{ ucfirst($msg->sender) }}:</strong> {{ $msg->message }} <span style="font-size: 0.8em;">({{ $msg->created_at->format('H:i') }})</span>
+        </div>
+    @endforeach
+</div>
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const messageInput = document.getElementById('message');
-            const message = messageInput.value.trim();
-            if (!message) return;
+<!-- Send Message -->
+<form id="chat-form" class="mt-4" onsubmit="sendMessage(event)">
+    <input type="text" id="message" placeholder="Write a message..." required>
+    <button type="submit">Send</button>
+</form>
 
-            try {
-                const response = await axios.post('{{ route('client.chat.send') }}', { message }, {
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                });
+<script>
+function setName() {
+    const name = document.getElementById('client-name').value;
+    axios.post('{{ route("client.chat.set-name") }}', { name })
+        .then(() => location.reload());
+}
 
-                const msg = response.data;
-                const div = document.createElement('div');
-                div.innerHTML = `<strong>${msg.sender}:</strong> ${msg.message} <small>(${msg.created_at})</small>`;
-                messagesDiv.appendChild(div);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+function sendMessage(e) {
+    e.preventDefault();
+    const msgInput = document.getElementById('message');
+    if (!msgInput.value.trim()) return;
 
-                messageInput.value = '';
-            } catch (err) {
-                console.error(err);
-                alert('Error enviando mensaje');
-            }
+    axios.post('{{ route("client.chat.send") }}', { message: msgInput.value })
+        .then(res => {
+            const chatBox = document.getElementById('chat-box');
+            const div = document.createElement('div');
+            div.className = 'message client';
+            div.innerHTML = `<strong>${res.data.sender}:</strong> ${res.data.message} <span style="font-size: 0.8em;">(${res.data.created_at})</span>`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            msgInput.value = '';
         });
-    </script>
+}
+
+// Auto-refresh every 2 seconds
+setInterval(() => {
+    axios.get('{{ route("client.chat") }}')
+        .then(res => {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = '';
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(res.data, 'text/html');
+            const messages = doc.querySelectorAll('.message');
+            messages.forEach(m => chatBox.appendChild(m));
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+}, 2000);
+</script>
+
 </body>
 </html>

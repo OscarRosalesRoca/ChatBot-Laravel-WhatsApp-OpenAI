@@ -9,6 +9,9 @@ use Filament\Forms;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Actions\Action;
 use Livewire\Component;
+use Filament\Notifications\Notification;
+use Livewire\Livewire;
+
 
 class ViewChat extends ViewRecord
 {
@@ -60,8 +63,6 @@ class ViewChat extends ViewRecord
 
 	public function render(): \Illuminate\Contracts\View\View
 	{
-	    return view('filament.resources.chats.pages.view-chat', [
-        	'messages' => $this->record->messages()->latest()->get(),
-    		]);
+	    return view('filament.resources.chats.pages.view-chat');
 	}
 }
