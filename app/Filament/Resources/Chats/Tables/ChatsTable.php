@@ -15,9 +15,9 @@ class ChatsTable
     {
         return $table
             ->columns([
-                TextColumn::make('session_id')
+                TextColumn::make('id')->label('ID')
                     ->searchable(),
-                TextColumn::make('name')
+                TextColumn::make('name')->label('Cliente')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
