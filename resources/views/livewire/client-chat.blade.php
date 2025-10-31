@@ -1,4 +1,4 @@
-<div>
+<div class="bg-green-600 text-white p-4 rounded">
     <h2 class="text-lg font-semibold mb-3">Chat del Cliente</h2>
 
     @if($chat->name === 'guest')
