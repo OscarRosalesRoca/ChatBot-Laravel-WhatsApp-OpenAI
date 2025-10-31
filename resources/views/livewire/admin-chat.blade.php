@@ -2,7 +2,7 @@
     <div class="max-w-3xl mx-auto w-full bg-white rounded-2xl shadow-lg flex flex-col h-full overflow-hidden">
         {{-- Header --}}
         <div class="bg-indigo-600 text-white px-6 py-4 text-lg font-semibold flex justify-between items-center">
-            <span>💬 Chat con {{ $chat->name ?? 'Cliente desconocido' }}</span>
+            <span>Chat con {{ $chat->name ?? 'Cliente desconocido' }}</span>
             <span class="text-sm opacity-80">ID: {{ $chat->id }}</span>
         </div>
 
