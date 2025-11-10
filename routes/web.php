@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Livewire\ClientChat;
 use App\Livewire\AdminChat;
+use App\Http\Controllers\TwilioWebhookController;
+
+Route::post('/twilio/webhook', [TwilioWebhookController::class, 'handle']);
 
 Route::get('/chat', \App\Livewire\ClientChat::class)->name('client.chat');
 

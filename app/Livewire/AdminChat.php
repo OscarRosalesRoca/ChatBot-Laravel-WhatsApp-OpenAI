@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Chat;
 use App\Models\Message;
+use App\Services\TwilioService;
 
 class AdminChat extends Component
 {
@@ -57,25 +58,23 @@ class AdminChat extends Component
             ->reverse();
     }
 
-    public function sendMessage()
-    {
-        if (! $this->chat) {
-            $this->dispatchBrowserEvent('toast', ['type' => 'error', 'message' => 'Chat not loaded.']);
-            return;
-        }
+    public function sendMessage() {
+    // Guardar mensaje en base de datos
+    $this->record->messages()->create([
+        'sender' => 'admin',
+        'message' => $this->newMessage,
+    ]);
 
-        if (trim($this->newMessage) === '') return;
+    // Enviar mensaje por WhatsApp
+    $twilio = new TwilioService();
+    $twilio->sendWhatsAppMessage($this->record->client_phone, $this->newMessage);
 
-        $this->chat->messages()->create([
-            'sender' => 'admin',
-            'message' => $this->newMessage,
-        ]);
+    $this->newMessage = '';
 
-        $this->newMessage = '';
-        $this->loadMessages();
-
-        // Notifica listeners (por ejemplo el cliente)
-        $this->dispatch('messageSent');
+    Notification::make()
+        ->title('Message sent.')
+        ->success()
+        ->send();
     }
 
     public function render()
