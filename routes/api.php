@@ -1,17 +1,11 @@
 <?php
 
-dd('api loaded');
-
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ChatController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TwilioWebhookController;
 
-// Cliente envía mensaje
-Route::post('/chat/send', [ChatController::class, 'receive']);
+Route::get('/test-api', function () {
+    return 'API funciona';
+});
 
-// Admin obtiene mensajes de un chat
-Route::get('/chat/{chatId}', [ChatController::class, 'getChatMessages']);
-
-// Admin envía mensaje
-Route::post('/chat/{chatId}/admin', [ChatController::class, 'sendMessage']);
+Route::post('/twilio/webhook', [TwilioWebhookController::class, 'handle'])
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);

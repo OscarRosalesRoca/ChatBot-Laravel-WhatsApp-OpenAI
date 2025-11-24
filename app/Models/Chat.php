@@ -9,7 +9,7 @@ class Chat extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['session_id', 'name'];
+    protected $fillable = ['session_id', 'name', 'whatsapp_number'];
 
     public function messages()
     {

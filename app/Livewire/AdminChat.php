@@ -58,23 +58,26 @@ class AdminChat extends Component
             ->reverse();
     }
 
-    public function sendMessage() {
+    public function sendMessage()
+    {
+    if (! $this->chat) {
+        return;
+    }
+
     // Guardar mensaje en base de datos
-    $this->record->messages()->create([
+    $this->chat->messages()->create([
         'sender' => 'admin',
         'message' => $this->newMessage,
     ]);
 
     // Enviar mensaje por WhatsApp
     $twilio = new TwilioService();
-    $twilio->sendWhatsAppMessage($this->record->client_phone, $this->newMessage);
+    $twilio->sendWhatsAppMessage($this->chat->whatsapp_number, $this->newMessage);
 
     $this->newMessage = '';
 
-    Notification::make()
-        ->title('Message sent.')
-        ->success()
-        ->send();
+    // Recargar mensajes en pantalla
+    $this->loadMessages();
     }
 
     public function render()
